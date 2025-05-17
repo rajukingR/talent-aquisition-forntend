@@ -1,46 +1,68 @@
-import React from "react";
-import { Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Typography, Avatar, Box } from "@mui/material";
+import axios from "axios";
+import API_URL from "../../api/Api_url";
 import DynamicTable from "../../components/table-format/DynamicTable";
 
 const CandidateTable = () => {
+  const [candidates, setCandidates] = useState([]);
+
+  useEffect(() => {
+    const fetchCandidates = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const response = await axios.get(`${API_URL}/candidate-details`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const formattedCandidates = response.data.map((candidate, index) => ({
+          serial: index + 1,
+          id: candidate.id,
+          candidate_id: candidate.candidate_id,
+          full_name: (
+            <Box display="flex" alignItems="center">
+              <Avatar
+                src={candidate.profile_picture || "https://via.placeholder.com/50"}
+                alt={candidate.full_name}
+                sx={{ width: 40, height: 40, mr: 1 }}
+              />
+              {`${candidate.first_name} ${candidate.last_name}`}
+            </Box>
+          ),
+          email: candidate.email,
+          phone: candidate.phone_number || "N/A",
+          years_of_experience: candidate.years_of_experience
+            ? `${candidate.years_of_experience} years`
+            : "N/A",
+        }));
+
+        setCandidates(formattedCandidates);
+      } catch (error) {
+        console.error("Error fetching candidates:", error);
+      }
+    };
+
+    fetchCandidates();
+  }, []);
+
   const columns = [
-    { id: "id", label: "No." },
-    { id: "name", label: "Candidate Name" },
+    { id: "serial", label: "No." },
+    { id: "full_name", label: "Candidate Name" },
     { id: "email", label: "Email" },
     { id: "phone", label: "Phone Number" },
-    { id: "position", label: "Applied Position" },
+    { id: "years_of_experience", label: "Experience" },
   ];
-
-  const data = [
-    { id: 1, name: "John Doe", email: "johndoe@example.com", phone: "123-456-7890", position: "Software Engineer" },
-    { id: 2, name: "Jane Smith", email: "janesmith@example.com", phone: "987-654-3210", position: "Data Analyst" },
-    { id: 3, name: "Alice Johnson", email: "alicej@example.com", phone: "555-123-4567", position: "Product Manager" },
-    { id: 4, name: "Bob Brown", email: "bobbrown@example.com", phone: "444-987-6543", position: "UX Designer" },
-    { id: 5, name: "Charlie Davis", email: "charlied@example.com", phone: "222-345-6789", position: "Marketing Specialist" },
-    { id: 6, name: "Diana White", email: "dianaw@example.com", phone: "333-789-0123", position: "HR Manager" },
-    { id: 7, name: "Ethan Miller", email: "ethanm@example.com", phone: "777-654-9876", position: "DevOps Engineer" },
-    { id: 8, name: "Fiona Lee", email: "fionalee@example.com", phone: "666-222-1111", position: "Business Analyst" },
-    { id: 9, name: "George Wilson", email: "georgew@example.com", phone: "888-777-6666", position: "Sales Manager" },
-    { id: 10, name: "Hannah Scott", email: "hannahs@example.com", phone: "999-888-7777", position: "QA Engineer" },
-    { id: 11, name: "Ian Clark", email: "ianclark@example.com", phone: "101-202-3030", position: "Cybersecurity Analyst" },
-    { id: 12, name: "Julia Adams", email: "juliaa@example.com", phone: "404-505-6060", position: "Content Writer" },
-    { id: 13, name: "Kevin Lewis", email: "kevinl@example.com", phone: "707-808-9090", position: "Software Architect" },
-    { id: 14, name: "Laura Martinez", email: "lauram@example.com", phone: "111-222-3333", position: "Recruiter" },
-    { id: 15, name: "Michael Taylor", email: "michaelt@example.com", phone: "444-555-6666", position: "Full Stack Developer" },
-    { id: 16, name: "Nancy Rodriguez", email: "nancy@example.com", phone: "777-888-9999", position: "Project Manager" },
-    { id: 17, name: "Oscar Evans", email: "oscare@example.com", phone: "123-789-4560", position: "AI Engineer" },
-    { id: 18, name: "Paula Harris", email: "paulah@example.com", phone: "333-222-1110", position: "Graphic Designer" },
-    { id: 19, name: "Quentin Young", email: "quentiny@example.com", phone: "555-666-7770", position: "SEO Specialist" },
-    { id: 20, name: "Rachel King", email: "rachelk@example.com", phone: "999-000-1111", position: "Customer Support" }
-];
 
   return (
     <>
       <Typography variant="h6" sx={{ color: "#989FA9", mb: 2 }}>
-        Candidate List
+        Candidate Details
       </Typography>
 
-      <DynamicTable columns={columns} data={data} />
+      <DynamicTable columns={columns} data={candidates} />
     </>
   );
 };

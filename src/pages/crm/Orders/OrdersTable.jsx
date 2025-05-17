@@ -1,53 +1,63 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
+import axios from "axios";
+import API_URL from "../../../api/Api_url";
 import DynamicTable from "../../../components/table-format/DynamicTable";
 
 const OrdersTable = () => {
-  const columns = [
-    { id: "order_id", label: "Order ID" },
-    { id: "quotation_id", label: "Quotation ID"},
-    { id: "job_description_id", label: "Job Description ID" },
-    { id: "client_name", label: "Client Name" },
-    { id: "email_address", label: "Email Address" },
-    { id: "phone_number", label: "Phone Number" },
-    { id: "executive", label: "Executive" },
-    { 
-      id: "move_to_next", 
-      label: "Move to Next",
-    },
-  ];
+  const [orderDetails, setOrderDetails] = useState([]);
+  const token = localStorage.getItem("token");
 
-  const data = [
-    { 
-      order_id: "ORD-001", 
-      quotation_id: "QUOT-001", 
-      job_description_id: "JOB-001", 
-      client_name: "ABC Corp", 
-      email_address: "abc@example.com", 
-      phone_number: "123-456-7890", 
-      executive: "John Doe",
-      move_to_next: "", 
-    },
-    { 
-      order_id: "ORD-002", 
-      quotation_id: "QUOT-002", 
-      job_description_id: "JOB-002", 
-      client_name: "XYZ Ltd.", 
-      email_address: "xyz@example.com", 
-      phone_number: "987-654-3210", 
-      executive: "Jane Smith",
-      move_to_next: "",
-    },
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/orders-details`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const formattedData = response.data.map((order, index) => ({
+          serial: index + 1,
+          id: order.id,
+          company_name: order.company_name,
+          contact_person: order.contact_person,
+          phone_number: order.phone_number,
+          mail_id: order.mail_id,
+          total: `Rs.${parseFloat(order.total).toLocaleString("en-IN", {
+            maximumFractionDigits: 2,
+          })}`,
+          order_date: order.order_date,
+        }));
+
+        setOrderDetails(formattedData);
+      } catch (error) {
+        console.error("Error fetching order details:", error);
+      }
+    };
+
+    fetchOrderDetails();
+  }, []);
+
+  const columns = [
+    { id: "serial", label: "No." },
+    { id: "company_name", label: "Company Name" },
+    { id: "contact_person", label: "Client Name" },
+    { id: "phone_number", label: "Phone Number" },
+    { id: "mail_id", label: "Email" },
+    { id: "total", label: "Total Amount" },
   ];
 
   return (
     <>
       <Typography variant="h6" sx={{ color: "#989FA9", mb: 2 }}>
-        Orders List
+        Order Details List
       </Typography>
-      <DynamicTable columns={columns} data={data} />
+
+      <DynamicTable columns={columns} data={orderDetails} />
     </>
   );
 };
 
 export default OrdersTable;
+
