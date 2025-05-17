@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Typography, IconButton } from "@mui/material";
+import { Typography, IconButton, Snackbar, Alert } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
 import DynamicTable from "../../../components/table-format/DynamicTable";
 
 export const IndustryEdit = () => {
   const [data, setData] = useState([]);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   const columns = [
     { id: "id", label: "No." },
@@ -33,6 +38,11 @@ export const IndustryEdit = () => {
       setData(res.data);
     } catch (err) {
       console.error("Error fetching industries:", err);
+      setSnackbar({
+        open: true,
+        message: "Failed to load industries",
+        severity: "error",
+      });
     }
   };
 
@@ -51,11 +61,25 @@ export const IndustryEdit = () => {
           description: updatedDesc,
         });
 
+        setSnackbar({
+          open: true,
+          message: "Industry updated successfully",
+          severity: "success",
+        });
         fetchIndustries(); // Refresh the table
       }
     } catch (err) {
       console.error("Error editing industry:", err);
+      setSnackbar({
+        open: true,
+        message: "Failed to update industry",
+        severity: "error",
+      });
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
@@ -65,6 +89,21 @@ export const IndustryEdit = () => {
       </Typography>
 
       <DynamicTable columns={columns} data={data} />
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity} 
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

@@ -1,23 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import DynamicTable from "../../../components/table-format/DynamicTable";
+import axios from "axios";
 
 export const OverallStatusTable = () => {
+  const [data, setData] = useState([]);
+
   const columns = [
     { id: "id", label: "No." },
-    { id: "title", label: "Work Layout" },
-    { id: "company", label: "Description" },
+    { id: "overall_status", label: "Overall Status" },
+    { id: "description", label: "Description" },
   ];
 
-  const data = [
-    { id: 1, title: "Software Engineer", company: "Tech Corp", location: "New York" },
-    { id: 2, title: "Data Scientist", company: "AI Solutions", location: "San Francisco" },
-  ];
+  useEffect(() => {
+    axios.get("http://localhost:5000/api/overall-status")
+      .then((response) => setData(response.data))
+      .catch((error) => console.error("Error fetching overall status data:", error));
+  }, []);
 
   return (
     <>
       <Typography variant="h6" sx={{ color: "#989FA9", mb: 2 }}>
-        Job Descriptions
+        Overall Status List
       </Typography>
       <DynamicTable columns={columns} data={data} />
     </>

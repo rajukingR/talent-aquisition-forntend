@@ -10,6 +10,8 @@ import {
   Button,
   Grid,
   Box,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import axios from "axios";
 
@@ -23,6 +25,12 @@ export const WorkLayoutEdit = () => {
     active_status: true,
   });
 
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
   useEffect(() => {
     const fetchLayout = async () => {
       try {
@@ -30,6 +38,11 @@ export const WorkLayoutEdit = () => {
         setForm(res.data);
       } catch (error) {
         console.error("Failed to fetch layout", error);
+        setSnackbar({
+          open: true,
+          message: "Failed to fetch work layout data",
+          severity: "error",
+        });
       }
     };
     fetchLayout();
@@ -47,11 +60,26 @@ export const WorkLayoutEdit = () => {
   const handleSubmit = async () => {
     try {
       await axios.put(`http://localhost:5000/api/work-layouts/${id}`, form);
-      alert("Work layout updated successfully!");
-      navigate("/dashboard/settings/WorkLayout");
+      setSnackbar({
+        open: true,
+        message: "Work layout updated successfully!",
+        severity: "success",
+      });
+      setTimeout(() => {
+        navigate("/dashboard/settings/WorkLayout");
+      }, 1000);
     } catch (error) {
       console.error("Error updating layout:", error);
+      setSnackbar({
+        open: true,
+        message: "Failed to update work layout",
+        severity: "error",
+      });
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
@@ -113,6 +141,22 @@ export const WorkLayoutEdit = () => {
           Save Changes
         </Button>
       </Box>
+
+      {/* Snackbar Notification */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

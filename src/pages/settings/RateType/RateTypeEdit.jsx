@@ -1,10 +1,83 @@
-import React, { useState } from "react";
-import { Card, CardContent, TextField, Typography, Switch, FormControlLabel, Button, Grid, Box } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  TextField,
+  Typography,
+  Switch,
+  FormControlLabel,
+  Button,
+  Grid,
+  Box,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import axios from "axios";
 
 export const RateTypeEdit = () => {
-  const [rateType, setRateType] = useState("Hourly");
-  const [description, setDescription] = useState("Payment based on hours worked.");
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [isActive, setIsActive] = useState(true);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  useEffect(() => {
+    fetchRateType();
+  }, [id]);
+
+  const fetchRateType = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/rate-types/${id}`);
+      console.log("API Response:", res.data); // <- Add this
+      setTitle(res.data.rate_type);
+      setDescription(res.data.description);
+      setIsActive(res.data.active_status);
+    } catch (err) {
+      console.error("Failed to fetch rate type data:", err);
+      setSnackbar({
+        open: true,
+        message: "Error fetching rate type data",
+        severity: "error",
+      });
+    }
+  };
+  
+
+  const handleSave = async () => {
+    try {
+      await axios.put(`http://localhost:5000/api/rate-types/${id}`, {
+        title,
+        description,
+        active_status: isActive,
+      });
+
+      setSnackbar({
+        open: true,
+        message: "Rate Type updated successfully",
+        severity: "success",
+      });
+
+      setTimeout(() => navigate("/dashboard/settings/RateTypeTable"), 1200);
+    } catch (err) {
+      console.error("Error updating rate type:", err);
+      setSnackbar({
+        open: true,
+        message: "Error updating rate type",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   return (
     <Box sx={{ padding: "20px" }}>
@@ -21,8 +94,8 @@ export const RateTypeEdit = () => {
                 fullWidth
                 margin="normal"
                 placeholder="Enter Rate Type"
-                value={rateType}
-                onChange={(e) => setRateType(e.target.value)}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
               />
               <TextField
                 label="Description"
@@ -61,10 +134,22 @@ export const RateTypeEdit = () => {
 
       {/* Save Button - Centered at Bottom */}
       <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-        <Button variant="contained" color="primary" sx={{ px: 40 }}>
+        <Button variant="contained" color="primary" sx={{ px: 40 }} onClick={handleSave}>
           Save
         </Button>
       </Box>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

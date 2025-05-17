@@ -9,14 +9,19 @@ export const JobTitleTable = () => {
   const columns = [
     { id: "id", label: "No." },
     { id: "job_title", label: "Job Title" },
-    { id: "department", label: "Department" }, // optional if your API includes this
+    { 
+      id: "job_description",  // Changed from "Description" to match API response
+      label: "Description",
+      format: (value) => value || "—" // Show dash if empty
+    },
   ];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await axios.get("http://localhost:5000/api/job-title/");
-        setRows(res.data); // assuming response is an array of job titles
+        console.log("API Response:", res.data); // Debug log
+        setRows(res.data);
       } catch (err) {
         console.error("Failed to fetch job titles:", err);
       }
@@ -31,7 +36,15 @@ export const JobTitleTable = () => {
         Job Titles
       </Typography>
 
-      <DynamicTable columns={columns} data={rows} />
+      <DynamicTable 
+        columns={columns} 
+        data={rows}
+        sx={{
+          "& .MuiTableCell-root": {
+            padding: "12px 16px"
+          }
+        }}
+      />
     </>
   );
 };
