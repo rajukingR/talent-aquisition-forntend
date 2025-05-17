@@ -1,40 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
+import axios from "axios";
 import DynamicTable from "../../../components/table-format/DynamicTable";
-
-export const WorkLayoutTable = () => {
-  const columns = [
-    { id: "id", label: "No." },
-    { id: "title", label: "Work Layout" },
-    { id: "company", label: "Description" },
-  ];
-
-  const data = [
-    { id: 1, title: "Software Engineer", company: "Tech Corp", location: "New York" },
-    { id: 2, title: "Data Scientist", company: "AI Solutions", location: "San Francisco" },
-  ];
-
-  return (
-    <>
-      <Typography variant="h6" sx={{ color: "#989FA9", mb: 2 }}>
-        Job Descriptions
-      </Typography>
-      <DynamicTable columns={columns} data={data} />
-    </>
-  );
-};
 
 export const CandidateStatusTable = () => {
   const columns = [
     { id: "id", label: "No." },
-    { id: "candidate", label: "Candidate Name" },
     { id: "status", label: "Status" },
+    { id: "description", label: "Description" },
   ];
 
-  const data = [
-    { id: 1, candidate: "John Doe", status: "Shortlisted" },
-    { id: 2, candidate: "Jane Smith", status: "Interview Scheduled" },
-  ];
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchCandidateStatus = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/candidate-status");
+        setData(response.data); // Make sure your backend returns an array
+      } catch (error) {
+        console.error("Error fetching candidate status:", error);
+      }
+    };
+
+    fetchCandidateStatus();
+  }, []);
 
   return (
     <>

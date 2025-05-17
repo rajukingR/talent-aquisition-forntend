@@ -18,128 +18,101 @@ import { useNavigate } from "react-router-dom";
 export const JobTitleAdd = () => {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     job_title: "",
     job_description: "",
     active_status: true,
   });
 
-  const [snackbar, setSnackbar] = useState({ 
-    open: false, 
-    message: "", 
-    severity: "success" 
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSwitchChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      active_status: e.target.checked,
-    }));
+    setForm((prev) => ({ ...prev, active_status: e.target.checked }));
   };
 
   const handleSubmit = async () => {
     try {
-      // Validate required fields
-      if (!formData.job_title.trim()) {
-        setSnackbar({ 
-          open: true, 
-          message: "Job Title is required", 
-          severity: "error" 
+      if (!form.job_title.trim()) {
+        setSnackbar({
+          open: true,
+          message: "Job Title is required",
+          severity: "error",
         });
         return;
       }
 
-      const payload = {
-        job_title: formData.job_title,
-        job_description: formData.job_description,
-        active_status: formData.active_status ? 1 : 0,
-      };
-
-      const response = await axios.post(
-        "http://localhost:5000/api/job-title/create", 
-        payload
-      );
-
-      setSnackbar({ 
-        open: true, 
-        message: "Job Title created successfully", 
-        severity: "success" 
-      });
-      navigate("/dashboard/settings/JobTitle"); 
-
-
-      // Reset form after successful submission
-      setFormData({ 
-        job_title: "", 
-        job_description: "", 
-        active_status: true 
+      await axios.post("http://localhost:5000/api/job-title/create", {
+        ...form,
+        active_status: form.active_status ? 1 : 0,
       });
 
-      // // Navigate after delay to show success message
-      // setTimeout(() => {
-      //   navigate("/dashboard/settings/job-title"); 
-      // }, 1500);
-
+      setSnackbar({
+        open: true,
+        message: "Job title created successfully!",
+        severity: "success",
+      });
+      
+      setTimeout(() => {
+        navigate("/dashboard/settings/JobTitle");
+      }, 1000);
     } catch (error) {
       console.error("Error creating job title:", error);
-      setSnackbar({ 
-        open: true, 
-        message: error.response?.data?.message || "Error creating job title", 
-        severity: "error" 
+      setSnackbar({
+        open: true,
+        message: error?.response?.data?.message || "Failed to create job title",
+        severity: "error",
       });
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
     <Box sx={{ padding: "20px" }}>
       <Grid container spacing={2}>
-        {/* Left Form - Job Title */}
+        {/* Left Form */}
         <Grid item xs={12} md={5}>
           <Card>
             <CardContent>
               <Typography variant="h6" fontWeight="bold">
-                Job Title:
-              </Typography>
-              
-              <Typography sx={{ mt: 1, mb: 0.5 }} fontWeight="500">
-                Job Title*
+                Add Job Title
               </Typography>
               <TextField
+                label="Job Title*"
                 fullWidth
-                margin="dense"
+                margin="normal"
                 name="job_title"
-                placeholder="Enter Job Title"
-                value={formData.job_title}
+                value={form.job_title}
                 onChange={handleChange}
-                required
+                placeholder="Enter Job Title"
               />
-
-              <Typography sx={{ mt: 2, mb: 0.5 }} fontWeight="500">
-                Job Description
-              </Typography>
               <TextField
+                label="Description"
                 fullWidth
-                margin="dense"
-                name="job_description"
+                margin="normal"
                 multiline
                 rows={3}
-                placeholder="Enter Job Description"
-                value={formData.job_description}
+                name="job_description"
+                value={form.job_description}
                 onChange={handleChange}
+                placeholder="Enter Description"
               />
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Right Form - Control */}
+        {/* Right Form */}
         <Grid item xs={12} md={3}>
           <Card>
             <CardContent>
@@ -149,7 +122,7 @@ export const JobTitleAdd = () => {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={formData.active_status}
+                    checked={form.active_status}
                     onChange={handleSwitchChange}
                   />
                 }
@@ -160,26 +133,30 @@ export const JobTitleAdd = () => {
         </Grid>
       </Grid>
 
-      {/* Save Button - Centered */}
+      {/* Save Button */}
       <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          sx={{ px: 40 }} 
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ px: 40 }}
           onClick={handleSubmit}
         >
           Save
         </Button>
       </Box>
 
-      {/* Snackbar for Success/Error Messages */}
+      {/* Snackbar Notification */}
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Alert severity={snackbar.severity} variant="filled">
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

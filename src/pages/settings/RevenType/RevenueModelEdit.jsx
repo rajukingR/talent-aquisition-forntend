@@ -19,7 +19,7 @@ export const RevenueModelEdit = () => {
   useEffect(() => {
     const fetchRevenueModel = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/revenue-model/${id}`);
+        const response = await axios.get(`http://localhost:5000/api/revenue-models/${id}`);
         const data = response.data;
 
         setRevenueModel({
@@ -55,7 +55,7 @@ export const RevenueModelEdit = () => {
         ...revenueModel,
         active_status: revenueModel.active_status ? 1 : 0,
       };
-      await axios.put(`http://localhost:5000/api/revenue-model/${id}`, payload);
+      await axios.put(`http://localhost:5000/api/revenue-models/${id}`, payload);
       setSnackbar({ open: true, message: "Revenue model updated successfully", severity: "success" });
       navigate("/dashboard/settings/RevenType");
 

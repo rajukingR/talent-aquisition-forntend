@@ -1,18 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
+import axios from "axios";
 import DynamicTable from "../../../components/table-format/DynamicTable";
 
 export const LanguageProficiencyTable = () => {
   const columns = [
     { id: "id", label: "No." },
     { id: "language", label: "Language" },
-    { id: "proficiency", label: "Proficiency Level" },
+    { id: "proficiency_level", label: "Proficiency Level" },
+    { id: "description", label: "Description" }, // ✅ Added description column
   ];
 
-  const data = [
-    { id: 1, language: "English", proficiency: "Fluent" },
-    { id: 2, language: "Spanish", proficiency: "Intermediate" },
-  ];
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/language-proficiency");
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching language proficiency data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <>

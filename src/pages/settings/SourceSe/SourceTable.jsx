@@ -1,18 +1,34 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import DynamicTable from "../../../components/table-format/DynamicTable";
 
 export const SourceTable = () => {
+  const [data, setData] = useState();
+
   const columns = [
     { id: "id", label: "No." },
-    { id: "title", label: "Work Layout" },
-    { id: "company", label: "Description" },
+    { id: "source_name", label: "Source" },
+    { id: "description", label: "Description" },
   ];
 
-  const data = [
-    { id: 1, title: "Software Engineer", company: "Tech Corp", location: "New York" },
-    { id: 2, title: "Data Scientist", company: "AI Solutions", location: "San Francisco" },
-  ];
+  // Fetch data from the API when the component is mounted
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/sources");
+        if (response.ok) {
+          const result = await response.json();
+          setData(result);  // Assuming API returns data in the format [{ id, Source, company }]
+        } else {
+          console.error("Failed to fetch data");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <>

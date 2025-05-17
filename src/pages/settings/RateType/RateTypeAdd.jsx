@@ -1,10 +1,80 @@
 import React, { useState } from "react";
-import { Card, CardContent, TextField, Typography, Switch, FormControlLabel, Button, Grid, Box } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { 
+  Card, 
+  CardContent, 
+  TextField, 
+  Typography, 
+  Switch, 
+  FormControlLabel, 
+  Button, 
+  Grid, 
+  Box,
+  Snackbar,
+  Alert 
+} from "@mui/material";
+import axios from "axios";
 
 export const RateTypeAdd = () => {
+  const navigate = useNavigate();
   const [rateType, setRateType] = useState("");
   const [description, setDescription] = useState("");
   const [isActive, setIsActive] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success"
+  });
+
+  const handleSubmit = async () => {
+    // Validate required fields
+    if (!rateType.trim()) {
+      setSnackbar({
+        open: true,
+        message: "Rate Type is required",
+        severity: "error"
+      });
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const response = await axios.post("http://localhost:5000/api/rate-types/create", {
+        rate_type: rateType,
+        description: description,
+        active_status: isActive
+      });
+
+      setSnackbar({
+        open: true,
+        message: "Rate Type created successfully!",
+        severity: "success"
+      });
+      setTimeout(() => navigate("/dashboard/settings/RateType"), 1200);
+
+
+      // Reset form
+      setRateType("");
+      setDescription("");
+      setIsActive(true);
+
+    } catch (error) {
+      console.error("Error creating rate type:", error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || "Failed to create Rate Type",
+        severity: "error"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
 
   return (
     <Box sx={{ padding: "20px" }}>
@@ -23,6 +93,8 @@ export const RateTypeAdd = () => {
                 placeholder="Enter Rate Type"
                 value={rateType}
                 onChange={(e) => setRateType(e.target.value)}
+                // error={!rateType.trim()}
+                // helperText={!rateType.trim() ? "This field is required" : ""}
               />
               <TextField
                 label="Description"
@@ -61,10 +133,32 @@ export const RateTypeAdd = () => {
 
       {/* Save Button - Centered at Bottom */}
       <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-        <Button variant="contained" color="primary" sx={{ px: 40 }}>
-          Save
+        <Button 
+          variant="contained" 
+          color="primary" 
+          sx={{ px: 40 }}
+          onClick={handleSubmit}
+          disabled={loading || !rateType.trim()}
+        >
+          {loading ? "Saving..." : "Save"}
         </Button>
       </Box>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

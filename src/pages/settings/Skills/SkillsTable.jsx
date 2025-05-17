@@ -1,19 +1,40 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
+import axios from "axios";
 import DynamicTable from "../../../components/table-format/DynamicTable";
 
 export const SkillsTable = () => {
+  const [data, setData] = useState([]);
+
   const columns = [
     { id: "id", label: "No." },
     { id: "skill", label: "Skill" },
-    { id: "proficiency", label: "Proficiency Level" },
+    { id: "job_title", label: "Job Title" },
+    { id: "job_description", label: "Job Description" },
   ];
 
-  const data = [
-    { id: 1, skill: "React.js", proficiency: "Advanced" },
-    { id: 2, skill: "JavaScript", proficiency: "Advanced" },
-    { id: 3, skill: "Tailwind CSS", proficiency: "Intermediate" },
-  ];
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/skills-add");
+        console.log("API Response:", response.data); // ← Check the structure here
+  
+        const formattedData = response.data.map((item, index) => ({
+          id: index + 1,
+          skill: item.skills?.join(", ") || "N/A",
+          job_title: item.job_title || "N/A",
+          job_description: item.job_description || "N/A",
+        }));
+  
+        setData(formattedData);
+      } catch (error) {
+        console.error("Failed to fetch skills:", error);
+      }
+    };
+  
+    fetchSkills();
+  }, []);
+  
 
   return (
     <>

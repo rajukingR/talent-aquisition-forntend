@@ -1,10 +1,72 @@
 import React, { useState } from "react";
-import { Card, CardContent, TextField, Typography, Switch, FormControlLabel, Button, Grid, Box } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  TextField,
+  Typography,
+  Switch,
+  FormControlLabel,
+  Button,
+  Grid,
+  Box,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import axios from "axios";
 
-export const CurrencyAdd = () => {
+export const CurrencyAdd = () => {                            
+  const navigate = useNavigate();
   const [currency, setCurrency] = useState("");
   const [description, setDescription] = useState("");
   const [isActive, setIsActive] = useState(true);
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const handleSubmit = async () => {
+    if (!currency.trim()) {
+      setSnackbar({
+        open: true,
+        message: "Currency name is required!",
+        severity: "error",
+      });
+      return;
+    }
+
+    try {
+      await axios.post("http://localhost:5000/api/currency/create", {
+        currency_name: currency,
+        description,
+        active_status: isActive,
+      });
+
+      setSnackbar({
+        open: true,
+        message: "Currency added successfully!",
+        severity: "success",
+      });
+      setTimeout(() => navigate("/dashboard/settings/Currency"), 1200);
+
+      setCurrency("");
+      setDescription("");
+      setIsActive(true);
+    } catch (error) {
+      console.error("Error creating currency:", error);
+      setSnackbar({
+        open: true,
+        message: "Failed to add currency.",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar((prev) => ({ ...prev, open: false }));
+  };
 
   return (
     <Box sx={{ padding: "20px" }}>
@@ -59,12 +121,24 @@ export const CurrencyAdd = () => {
         </Grid>
       </Grid>
 
-      {/* Save Button - Centered at Bottom */}
+      {/* Save Button */}
       <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-        <Button variant="contained" color="primary" sx={{ px: 40 }}>
+        <Button variant="contained" color="primary" sx={{ px: 40 }} onClick={handleSubmit}>
           Save
         </Button>
       </Box>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

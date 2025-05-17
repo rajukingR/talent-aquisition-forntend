@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import DynamicTable from "../../../components/table-format/DynamicTable";
-import { Check, Edit, Delete } from "@mui/icons-material";
+import { Check } from "@mui/icons-material";
 import axios from "axios";
 
 export const RevenueTablePage = () => {
@@ -15,22 +15,12 @@ export const RevenueTablePage = () => {
       id: "active_status",
       label: "Status",
       format: (value) => value ? <Check color="success" /> : null
-    },
-    {
-      id: "action",
-      label: "Action",
-      format: (row) => (
-        <div style={{ display: "flex", gap: "8px" }}>
-          <Edit color="primary" style={{ cursor: "pointer" }} />
-          <Delete color="error" style={{ cursor: "pointer" }} />
-        </div>
-      )
     }
   ];
 
   const fetchRevenueModels = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/revenue-model/");
+      const response = await axios.get("http://localhost:5000/api/revenue-models/");
       setData(response.data);
     } catch (error) {
       console.error("Failed to fetch revenue models", error);

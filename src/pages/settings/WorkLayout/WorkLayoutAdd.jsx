@@ -10,14 +10,21 @@ import {
   Button,
   Grid,
   Box,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom"; // ✅ make sure this is present
+import { useNavigate } from "react-router-dom";
 
 export const WorkLayoutAdd = () => {
   const [workLayout, setWorkLayout] = useState("");
   const [description, setDescription] = useState("");
   const [activeStatus, setActiveStatus] = useState(true);
-  const navigate = useNavigate(); // ✅ this must be inside the component body
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     try {
@@ -28,13 +35,30 @@ export const WorkLayoutAdd = () => {
       };
 
       const response = await axios.post("http://localhost:5000/api/work-layouts/create", payload);
-      alert("Work Layout created successfully!");
-      navigate("/dashboard/settings/WorkLayout");
+      
+      setSnackbar({
+        open: true,
+        message: "Work Layout created successfully!",
+        severity: "success",
+      });
+      
+      setTimeout(() => {
+        navigate("/dashboard/settings/WorkLayout");
+      }, 1000);
+      
       console.log(response.data);
     } catch (error) {
       console.error("Error creating work layout:", error);
-      alert("Failed to create work layout.");
+      setSnackbar({
+        open: true,
+        message: "Failed to create work layout.",
+        severity: "error",
+      });
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
@@ -94,6 +118,22 @@ export const WorkLayoutAdd = () => {
           Save
         </Button>
       </Box>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

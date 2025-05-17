@@ -1,23 +1,34 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import DynamicTable from "../../../components/table-format/DynamicTable";
+import axios from "axios";
 
 export const CurrencyTable = () => {
+  const [data, setData] = useState([]);
+
   const columns = [
     { id: "id", label: "No." },
-    { id: "title", label: "Work Layout" },
-    { id: "company", label: "Description" },
+    { id: "currency_name", label: "Currency Type" },
+    { id: "description", label: "Description" },
   ];
 
-  const data = [
-    { id: 1, title: "Software Engineer", company: "Tech Corp", location: "New York" },
-    { id: 2, title: "Data Scientist", company: "AI Solutions", location: "San Francisco" },
-  ];
+  useEffect(() => {
+    fetchCurrencyData();
+  }, []);
+
+  const fetchCurrencyData = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/currency");
+      setData(res.data);
+    } catch (err) {
+      console.error("Failed to fetch currency data:", err);
+    }
+  };
 
   return (
     <>
       <Typography variant="h6" sx={{ color: "#989FA9", mb: 2 }}>
-        Job Descriptions
+        Currency List
       </Typography>
 
       <DynamicTable columns={columns} data={data} />

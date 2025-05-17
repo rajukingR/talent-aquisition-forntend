@@ -14,10 +14,10 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API_END_POINT from "../../../api/Api_url";
 
 export const RevenueModelAdd = () => {
   const navigate = useNavigate();
-
 
   const [formData, setFormData] = useState({
     revenue_model_name: "",
@@ -44,16 +44,24 @@ export const RevenueModelAdd = () => {
 
   const handleSubmit = async () => {
     try {
+      // Prepare payload to send to the API
       const payload = {
-        ...formData,
-        active_status: formData.active_status ? 1 : 0,
+        revenue_model_name: formData.revenue_model_name,
+        description: formData.description,
+        active_status: formData.active_status ? 1 : 0, // Ensure it is 1 or 0 for active status
       };
-      const response = await axios.post("http://localhost:5000/api/revenue-model/create", payload);
+
+      // Make POST request to the API endpoint
+      const response = await axios.post(`${API_END_POINT}/revenue-models/create`, payload);
+
+      // Success - Show Snackbar
       setSnackbar({ open: true, message: "Revenue model created successfully", severity: "success" });
+      
+      // Navigate to another page (you can adjust the URL)
       navigate("/dashboard/settings/RevenType");
 
+      // Reset the form data after successful submission
       setFormData({ revenue_model_name: "", description: "", active_status: true });
-
     } catch (error) {
       console.error(error);
       setSnackbar({ open: true, message: "Error creating revenue model", severity: "error" });

@@ -1,25 +1,38 @@
-import React from "react";
-import { Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Typography, CircularProgress } from "@mui/material";
 import DynamicTable from "../../../components/table-format/DynamicTable";
+import axios from "axios";
 
 export const RateTypeTable = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const columns = [
     { id: "id", label: "No." },
-    { id: "title", label: "Work Layout" },
-    { id: "company", label: "Description" },
+    { id: "rate_type", label: "Rate Type" }, 
+    { id: "description", label: "Description" }, 
   ];
+  
 
-  const data = [
-    { id: 1, title: "Software Engineer", company: "Tech Corp", location: "New York" },
-    { id: 2, title: "Data Scientist", company: "AI Solutions", location: "San Francisco" },
-  ];
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/rate-types")
+      .then((response) => {
+        setData(response.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch rate types:", error);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <>
       <Typography variant="h6" sx={{ color: "#989FA9", mb: 2 }}>
-        Job Descriptions
+        Rate Types
       </Typography>
-      <DynamicTable columns={columns} data={data} />
+      {loading ? <CircularProgress /> : <DynamicTable columns={columns} data={data} />}
     </>
   );
 };

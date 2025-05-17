@@ -1,26 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import DynamicTable from "../../../components/table-format/DynamicTable";
 
 export const InterviewNameTable = () => {
+  const [interviewNames, setInterviewNames] = useState([]);
+
+  useEffect(() => {
+    const fetchInterviewNames = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/interview-names");
+        const data = await response.json();
+        setInterviewNames(data); // Set fetched data
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchInterviewNames();
+  }, []);
+
   const columns = [
-    { id: "id", label: "No." },
-    { id: "name", label: "Candidate Name" },
-    { id: "role", label: "Position Applied" },
+    { id: "sl_no", label: "Sl No." },
+    { id: "interview_name", label: "Interview Name" },
+    { id: "description", label: "Description" },
   ];
 
-  const data = [
-    { id: 1, name: "John Doe", role: "Software Engineer" },
-    { id: 2, name: "Jane Smith", role: "Data Scientist" },
-  ];
+  // Map data with generated serial numbers
+  const formattedData = interviewNames.map((item, index) => ({
+    ...item,
+    sl_no: index + 1, // Auto-generate Sl No. starting from 1
+  }));
 
   return (
     <>
       <Typography variant="h6" sx={{ color: "#989FA9", mb: 2 }}>
-        Interview Candidates
+        Interview List
       </Typography>
-
-      <DynamicTable columns={columns} data={data} />
+      <DynamicTable columns={columns} data={formattedData} />
     </>
   );
 };
