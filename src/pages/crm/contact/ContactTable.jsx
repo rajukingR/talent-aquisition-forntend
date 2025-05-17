@@ -1,29 +1,66 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import DynamicTable from "../../../components/table-format/DynamicTable";
+import axios from "axios";
+import API_URL from "../../../api/Api_url";
 
 const ContactTable = () => {
-  const columns = [
-    { id: "id", label: "No." },
-    { id: "contact_name", label: "Contact Name" },
-    { id: "email", label: "Email" },
-    { id: "phone", label: "Phone" },
-  ];
+  const [contacts, setContacts] = useState([]);
 
-  const data = [
-    { id: 1, contact_name: "John Doe", email: "john.doe@example.com", phone: "123-456-7890" },
-    { id: 2, contact_name: "Jane Smith", email: "jane.smith@example.com", phone: "987-654-3210" },
-    { id: 3, contact_name: "Michael Brown", email: "michael.brown@example.com", phone: "555-678-1234" },
+  useEffect(() => {
+    const fetchContacts = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const response = await axios.get(`${API_URL}/client-contact-details`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const formattedContacts = response.data.map((contact, index) => ({
+          serial: index + 1,
+          id: contact.id,
+          client_id: contact.client_id,
+          first_name: contact.first_name,
+          last_name: contact.last_name,
+          email: contact.email,
+          phone_number: contact.phone_number,
+          company_name: contact.company_name || "N/A",
+          industry: contact.industry || "N/A",
+          status: contact.active_status ? "Active" : "Inactive",
+        }));
+
+        setContacts(formattedContacts);
+      } catch (error) {
+        console.error("Error fetching client contacts:", error);
+      }
+    };
+
+    fetchContacts();
+  }, []);
+
+  const columns = [
+    { id: "serial", label: "No." },
+    { id: "client_id", label: "Client ID" },
+    { id: "first_name", label: "First Name" },
+    { id: "last_name", label: "Last Name" },
+    { id: "email", label: "Email" },
+    { id: "phone_number", label: "Phone Number" },
+    { id: "company_name", label: "Company Name" },
+    { id: "industry", label: "Industry" },
   ];
 
   return (
     <>
       <Typography variant="h6" sx={{ color: "#989FA9", mb: 2 }}>
-        Contact List
+        Client Contacts List
       </Typography>
-      <DynamicTable columns={columns} data={data} />
+
+      <DynamicTable columns={columns} data={contacts} />
     </>
   );
 };
 
 export default ContactTable;
+
