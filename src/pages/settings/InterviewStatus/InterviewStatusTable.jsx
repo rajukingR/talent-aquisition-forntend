@@ -10,7 +10,7 @@ export const InterviewStatusTable = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/interview-statuses"); // Adjust the endpoint as per your setup
+        const response = await axios.get("http://localhost:5000/api/interview-statuses"); 
         setData(response.data);
       } catch (error) {
         console.error("Error fetching interview statuses", error);

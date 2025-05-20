@@ -50,30 +50,31 @@ export const RateTypeEdit = () => {
   };
   
 
-  const handleSave = async () => {
-    try {
-      await axios.put(`http://localhost:5000/api/rate-types/${id}`, {
-        title,
-        description,
-        active_status: isActive,
-      });
+const handleSave = async () => {
+  try {
+    await axios.put(`http://localhost:5000/api/rate-types/${id}`, {
+      rate_type: title, // <- FIXED: send correct field name
+      description,
+      active_status: isActive,
+    });
 
-      setSnackbar({
-        open: true,
-        message: "Rate Type updated successfully",
-        severity: "success",
-      });
+    setSnackbar({
+      open: true,
+      message: "Rate Type updated successfully",
+      severity: "success",
+    });
 
-      setTimeout(() => navigate("/dashboard/settings/RateTypeTable"), 1200);
-    } catch (err) {
-      console.error("Error updating rate type:", err);
-      setSnackbar({
-        open: true,
-        message: "Error updating rate type",
-        severity: "error",
-      });
-    }
-  };
+    setTimeout(() => navigate("/dashboard/settings/RateType"), 1200);
+  } catch (err) {
+    console.error("Error updating rate type:", err);
+    setSnackbar({
+      open: true,
+      message: "Error updating rate type",
+      severity: "error",
+    });
+  }
+};
+
 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });

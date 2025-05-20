@@ -62,7 +62,7 @@ export const CurrencyEdit = () => {
         severity: "success",
       });
 
-      setTimeout(() => navigate("/dashboard/settings/CurrencyTable"), 1200);
+      setTimeout(() => navigate("/dashboard/settings/Currency"), 1200);
     } catch (err) {
       console.error("Error updating currency:", err);
       setSnackbar({

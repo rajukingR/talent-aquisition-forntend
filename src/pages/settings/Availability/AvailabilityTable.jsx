@@ -14,18 +14,30 @@ export const AvailabilityTable = () => {
     { id: "description", label: "Description" },
   ];
 
-  useEffect(() => {
-    axios
-      .get(`${API_URL}/availability-status`)
-      .then((res) => {
-        setData(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch availability status:", err);
-        setLoading(false);
-      });
-  }, []);
+ useEffect(() => {
+  const fetchAvailabilityStatus = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/availability-status`);
+
+      const formattedAvailability = response.data.map((statusItem, index) => ({
+        serial: index + 1,
+        id: statusItem.id,
+        availability_status: statusItem.availability_status, // Update field as per your API
+        description: statusItem.description,
+        status: statusItem.active_status ? "Active" : "Inactive", // Assumes active_status is boolean
+      }));
+
+      setData(formattedAvailability);
+    } catch (error) {
+      console.error("Failed to fetch availability status:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchAvailabilityStatus();
+}, []);
+
 
   return (
     <div>

@@ -13,19 +13,31 @@ export const RateTypeTable = () => {
     { id: "description", label: "Description" }, 
   ];
   
+  
+ useEffect(() => {
+  const fetchRateTypes = async () =>{
+    try {
+      const response = await axios.get("http://localhost:5000/api/rate-types");
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/rate-types")
-      .then((response) => {
-        setData(response.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch rate types:", error);
-        setLoading(false);
-      });
-  }, []);
+      const formattedRateTypes = response.data.map((rateType, index) => ({
+        serial: index + 1,
+        id: rateType.id,
+        rate_type: rateType.rate_type, 
+        description: rateType.description,
+        status: rateType.active_status ? "Active" : "Inactive", 
+      }));
+
+      setData(formattedRateTypes);
+    } catch (error) {
+      console.error("Failed to fetch rate types:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchRateTypes();
+}, []);
+
 
   return (
     <>
