@@ -28,7 +28,7 @@ import BenchTable from "../pages/candidate/BenchTable";
 import ResumeBankTable from "../pages/candidate/ResumeBankTable";
 import ProfilePage from "../pages/user-profile/ProfilePage";
 import OrdersTable from "../pages/crm/Orders/OrdersTable";
-import QuotationTable from "../pages/crm/QuotationTable";
+import QuotationTable from "../pages/crm/Quotations/QuotationTable";
 import AddVendorForm from "../pages/vendor/AddVendorForm.jsx";
 import EditVendorForm from "../pages/vendor/EditVendorForm.jsx";
 import AddUserForm from "../pages/settings/users/AddUserForm.jsx";
